@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import scapy.all as scapy
 import socket
 
+from core.database import engine
+from models.User import Base
+from routes.userRoutes import router as user_router
+
+
 app = FastAPI()
 
 app.add_middleware(
@@ -12,12 +17,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    ip = s.getsockname()[0]
-    s.close()
-    return ip
+
+# def get_local_ip():
+#     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#     s.connect(("8.8.8.8", 80))
+#     ip = s.getsockname()[0]
+#     s.close()
+#     return ip
+# =======
+app.include_router(user_router, prefix="/user")
+
 
 def scan_network():
     local_ip = get_local_ip()
