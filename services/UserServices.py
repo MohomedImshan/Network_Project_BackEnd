@@ -31,11 +31,11 @@ def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        return none, "Invalid email or password"
+        return None, "Invalid email or password"
     
     if not verify_password(password, user.password):
-        return none, "Invalid email or password"
-    
+        return None, "Invalid email or password"
+
     token_data = {"first_name": user.firstName, "last_name": user.lastName, "email": user.email}
     access_token = create_access_token(token_data)
     return {"token": access_token, "token_type": "bearer"}, None
