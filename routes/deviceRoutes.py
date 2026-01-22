@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from services.deviceServices import get_cached_devices, force_scan
 from dependencies.auth import get_current_user
 
-router = APIRouter(prefix="/devices", tags=["Devices"])
+router = APIRouter()
 
 
 @router.get("/getAllDevices")

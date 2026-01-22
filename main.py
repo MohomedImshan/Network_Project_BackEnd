@@ -34,7 +34,7 @@ def root():
 
 app.include_router(user_router, prefix="/user")
 app.include_router(ping_router, prefix="/ping")
-app.include_router(device_router)
+app.include_router(device_router, prefix="/devices")
 app.include_router(wifi_router, prefix="/network")
 
 
