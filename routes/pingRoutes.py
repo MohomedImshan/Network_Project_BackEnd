@@ -1,15 +1,17 @@
+import socket
+import time
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from ping3 import ping
 
 ping_router = APIRouter()
 
-@ping_router.get("")
-
-async def ping_host():
+@ping_router.get("/")
+def ping_host():
+    start = time.time()
     try:
-        latency = ping("8.8.8.8", timeout=1)
-        return {"latency": latency}
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
-
+        socket.create_connection(("8.8.8.8", 53), timeout=1)
+        latency = int((time.time() - start) * 1000)
+        return {"status": "up", "ping": latency}
+    except:
+        return {"status": "down", "ping": None}

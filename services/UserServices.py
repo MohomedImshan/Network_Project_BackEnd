@@ -31,11 +31,53 @@ def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        return none, "Invalid email or password"
+        return None, "Invalid email or password"
     
     if not verify_password(password, user.password):
-        return none, "Invalid email or password"
+        return None, "Invalid email or password"
     
     token_data = {"first_name": user.firstName, "last_name": user.lastName, "email": user.email}
     access_token = create_access_token(token_data)
     return {"token": access_token, "token_type": "bearer"}, None
+
+def get_user_details(db: Session, email:str):
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        return None, "User not found"
+    
+    user_data = {
+        "id": user.id,
+        "firstName": user.firstName,
+        "lastName": user.lastName,
+        "email": user.email
+    }
+    return user_data, None
+
+def update_user_profile(db: Session, current_email:str, email: str, firstName: str, lastName:str):
+    user = db.query(User).filter(User.email == current_email).first()
+
+    if not user:
+        return None, "User not found"
+    
+    user.firstName = firstName
+    user.lastName = lastName
+    user.email = email
+
+    db.commit()
+    db.refresh(user)
+
+    token_data = {"first_name": user.firstName, "last_name": user.lastName, "email": user.email}
+    access_token = create_access_token(token_data)
+    return {"token": access_token, "token_type": "bearer"}, None
+
+def reset_user_password(db: Session, email: str, new_password: str):
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        return None, "User not found"
+    new_hashed_password = pwd_context.hash(new_password)
+    user.password = new_hashed_password
+    db.commit()
+    db.refresh(user)
+    return {"message": "Password reset successfully."}, None
