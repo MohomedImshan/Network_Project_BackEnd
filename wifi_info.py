@@ -3,7 +3,7 @@ import socket
 import subprocess
 import platform
 
-def get_windows_wifi_info():
+def get_wifi_info():
     """Get Wi-Fi info on Windows using netsh"""
     info = {}
     try:
