@@ -94,21 +94,24 @@ def get_device_usage():
     devices = []
 
     with cache_lock:
-        for mac, dev in device_cache.items():
+        for dev_id, dev in device_cache.items():
             devices.append({
                 "device_name": dev.get("device_name", "Unknown"),
                 "ip": dev.get("ip"),
-                "mac": dev["mac"],
+                "mac": dev.get("mac"),
                 "upload_mb": round(dev["bytes_sent"] / (1024 * 1024), 2),
                 "download_mb": round(dev["bytes_recv"] / (1024 * 1024), 2),
                 "packets_sent": dev["packets_sent"],
-                "packets_recv": dev["packets_recv"]
+                "packets_recv": dev["packets_recv"],
+                "total_packets": dev["packets_sent"] + dev["packets_recv"],
+                "sessions": dev.get("sessions", 0)   # ✅ NEW
             })
 
     return {
         "connected_devices": len(devices),
         "devices": devices
     }
+
 
 
 # ===================== REAL TIME WIFI INFO =====================

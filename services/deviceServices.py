@@ -6,6 +6,8 @@ from datetime import datetime
 from services.oui import OUI_MAP
 
 device_cache = {}
+device_sessions = {}   # dev_id -> set of session keys
+ip_sessions = {}   # ip -> set(session_keys)
 cache_lock = threading.Lock()
 
 SCAN_INTERVAL = 30
@@ -56,22 +58,50 @@ def packet_handler(packet):
     try:
         if not packet.haslayer(scapy.IP):
             return
+        print(f"Packet captured: {packet.summary()}")
         src_ip = packet[scapy.IP].src
         dst_ip = packet[scapy.IP].dst
         size = len(packet)
+        protocol = packet[scapy.IP].proto
+
+        if packet.haslayer(scapy.TCP):
+            src_port = packet[scapy.TCP].sport
+            dst_port = packet[scapy.TCP].dport
+        elif packet.haslayer(scapy.UDP):
+            src_port = packet[scapy.UDP].sport
+            dst_port = packet[scapy.UDP].dport
+        else:
+            return
+
+        ip_pair = tuple(sorted([src_ip, dst_ip]))
+        port_pair = tuple(sorted([src_port, dst_port]))
+        session_key = (ip_pair, protocol, port_pair)
 
         with cache_lock:
+
+            # Update packet counts as usual
             for dev in device_cache.values():
                 if dev["ip"] == src_ip:
-                    dev.setdefault("bytes_sent", 0)
-                    dev.setdefault("packets_sent", 0)
                     dev["bytes_sent"] += size
                     dev["packets_sent"] += 1
                 elif dev["ip"] == dst_ip:
-                    dev.setdefault("bytes_recv", 0)
-                    dev.setdefault("packets_recv", 0)
                     dev["bytes_recv"] += size
                     dev["packets_recv"] += 1
+
+            # Update session sets
+            for ip in ip_pair:
+                if ip not in ip_sessions:
+                    ip_sessions[ip] = set()
+                ip_sessions[ip].add(session_key)
+
+            # Print the current total number of tracked sessions
+            print("SESSIONS:", sum(len(sessions) for sessions in ip_sessions.values()))
+
+            # Map sessions to devices
+            for dev in device_cache.values():
+                dev_ip = dev["ip"]
+                dev["sessions"] = len(ip_sessions.get(dev_ip, set()))
+
     except Exception as e:
         print("Packet handler error:", e)
 
@@ -91,10 +121,10 @@ def start_traffic_sniffer(interface=None):
         daemon=True
     ).start()
 
+
 # ------------------ Scanner ------------------
 
 def perform_scan():
-    # device_cache.clear()
     local_ip = get_local_ip()
     if local_ip == "127.0.0.1":
         return
@@ -135,8 +165,12 @@ def perform_scan():
                     "bytes_sent": 0,
                     "bytes_recv": 0,
                     "packets_sent": 0,
-                    "packets_recv": 0
+                    "packets_recv": 0,
+                    "sessions": 0
                 }
+
+                device_sessions[dev_id] = set()
+
             else:
                 dev = device_cache[dev_id]
                 if dev.get("device_name") in [None, "Unknown"]:
