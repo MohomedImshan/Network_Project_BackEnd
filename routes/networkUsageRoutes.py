@@ -101,12 +101,13 @@ def get_device_usage():
                 "download_mb": round(dev.get("bytes_recv", 0) / (1024 * 1024), 2),
                 "packets_sent": dev.get("packets_sent", 0),
                 "packets_recv": dev.get("packets_recv", 0),
-                "session_count": len(dev.get("sessions", {}))  # ✅ ONLY COUNT
+                "session_count": len(dev.get("sessions", {})) 
             })
 
     return {
         "connected_devices": len(devices),
         "devices": devices
+        
     }
 
 

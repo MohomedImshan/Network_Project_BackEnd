@@ -11,10 +11,11 @@ from models.Notification import Notification
 HEARTBEAT_INTERVAL = 5  # default interval
 
 
-def get_monthly_device_history(wifi_id: int):
+def get_monthly_device_history(id: int):
     db: Session = SessionLocal()
     try:
         since = datetime.utcnow() - timedelta(days=30)
+        print(f"Fetching history for Wi-Fi ID: {id}, since: {since.date()}")
         new_threshold = datetime.utcnow() - timedelta(hours=24)
 
         rows = (
@@ -26,7 +27,7 @@ def get_monthly_device_history(wifi_id: int):
                 func.min(DeviceHistory.first_seen).label("first_seen"),
             )
             .filter(
-                DeviceHistory.wifi_id == wifi_id,
+                DeviceHistory.wifi_id == id,
                 DeviceHistory.date >= since.date()
             )
             .group_by(

@@ -1,20 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from scapy.all import get_if_list, get_if_addr
-
 from routes.userRoutes import router as user_router
 from routes.pingRoutes import ping_router
 from routes.deviceRoutes import router as device_router
 from routes.wifi import router as wifi_router
 from routes.networkUsageRoutes import usage_router
-
 from services.deviceServices import start_scanner
 from services.trafficSniffer import start_traffic_sniffer
-
 from routes.deviceHistoryRoute import router as device_history_route
-
 from wifi_info import get_wifi_info  # import get_wifi_info to get adapter name
-
+from routes.notificationRoute import router as notification_router
 
 from core.database import engine
 from models import *
@@ -41,10 +37,9 @@ app.include_router(user_router, prefix="/user")
 app.include_router(ping_router, prefix="/ping")
 app.include_router(device_router, prefix="/devices")
 app.include_router(wifi_router, prefix="/network")
-
 app.include_router(device_history_route)
-
 app.include_router(usage_router, prefix="/network-usage")
+app.include_router(notification_router)
 
 
 
