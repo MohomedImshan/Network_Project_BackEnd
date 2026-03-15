@@ -95,7 +95,6 @@ def perform_scan():
                 dev["last_seen"] = now.isoformat() + "Z"
                 dev["disconnected_at"] = None
 
-<<<<<<< HEAD
         # Offline detection
         for dev in device_cache.values():
             last_seen = datetime.fromisoformat(dev["last_seen"].replace("Z", ""))
@@ -103,14 +102,12 @@ def perform_scan():
                 if dev["status"] == "online":
                     dev["status"] = "offline"
                     dev["disconnected_at"] = now.isoformat() + "Z"
-=======
             # ✅ MOVE THIS INSIDE THE LOOP
             update_device_uptime(
                 ip=received.psrc,
                 mac=received.hwsrc,
                 name=device_name
             )
->>>>>>> 35d61b2933d36ac73843b2adf7808377ff211e40
 
     print(f"Scan complete: {len(seen)} devices online")
 
