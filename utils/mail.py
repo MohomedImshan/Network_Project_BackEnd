@@ -1,9 +1,9 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
 conf = ConnectionConfig(
-    MAIL_USERNAME="kavishkaimalsha@gmail.com",
-    MAIL_PASSWORD="wsra tmpp nmrs rgil",
-    MAIL_FROM="kavishkaimalsha@gmail.com",
+    MAIL_USERNAME="quantumcode.team@gmail.com",
+    MAIL_PASSWORD="pqml sfzh cqum vkmj",
+    MAIL_FROM="quantumcode.team@gmail.com",
     MAIL_PORT=587,
     MAIL_SERVER="smtp.gmail.com",
     MAIL_STARTTLS=True,
